@@ -67,6 +67,8 @@ public class SocketClientManager
         {
             await Task.Delay(200);
         }
+        
+        OnEvent("message");
 
         if (socketClient.Connected) return;
         

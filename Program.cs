@@ -116,7 +116,6 @@ class Program
         // }
         //
      
-        
         SocketClientManager socketClient = new SocketClientManager();
         
         await socketClient.Initialize(URL, PATH);
@@ -135,6 +134,7 @@ class Program
         {
             Console.Write("Enter your message or type (quit): ");
             var messageInput = Console.ReadLine();
+            
             if (string.IsNullOrEmpty(messageInput)) continue;
             if (messageInput.ToLower() == "quit") break;
 
@@ -163,21 +163,20 @@ class Program
                 throw;
             }
         }
-        
-
 
         await socketClient.ExitChat(userName);
         // await ExitChat(userName);
 
-        string fileName = $"chat_{DateTime.Now:yyyyMMdd_HHmmss}.json";
-        string jsonOutput = JsonSerializer.Serialize(chatHistory, new JsonSerializerOptions 
-        { 
-            WriteIndented = true 
-        });
-        
-        await File.WriteAllTextAsync(fileName, jsonOutput);
-        Console.WriteLine($"\nChat history saved to {fileName}");
-        Console.WriteLine($"Current directory: {Directory.GetCurrentDirectory()}");
+        //// Save chat history to a JSON file
+        // string fileName = $"chat_{DateTime.Now:yyyyMMdd_HHmmss}.json";
+        // string jsonOutput = JsonSerializer.Serialize(chatHistory, new JsonSerializerOptions 
+        // { 
+        //     WriteIndented = true 
+        // });
+        //
+        // await File.WriteAllTextAsync(fileName, jsonOutput);
+        // Console.WriteLine($"\nChat history saved to {fileName}");
+        // Console.WriteLine($"Current directory: {Directory.GetCurrentDirectory()}");
 
         // _client = new SocketIO("wss://api.leetcode.se", new SocketIOOptions
         // {
