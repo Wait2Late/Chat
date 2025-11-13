@@ -14,17 +14,17 @@ namespace Chat;
  * Each event has an eventName and data content
  */
 
-class Message
-{
-    public string Time { get; set; }
-    public string User { get; set; }
-    public string Text { get; set; }
-}
+// class Message
+// {
+//     public string Time { get; set; }
+//     public string User { get; set; }
+//     public string Text { get; set; }
+// }
 
 class Program
 {
     // private static SocketIO socket;
-    private static List<Message> chatHistory = new List<Message>();
+    // private static List<Messaging> chatHistory = new List<Messaging>();
     // private static bool isTyping = false;
     // private static CancellationTokenSource typingCancellation;
     const string URL = "wss://api.leetcode.se";
@@ -32,7 +32,6 @@ class Program
     
     static async Task Main(string[] args)
     {
-        
         // socket = new SocketIO("wss://api.leetcode.se", new SocketIOOptions
         // {
         //     Path = "/sys25d"
@@ -117,52 +116,56 @@ class Program
         //
      
         SocketClientManager socketClient = new SocketClientManager();
+        Messaging messaging = new Messaging();
+        
         
         await socketClient.Initialize(URL, PATH);
         
-        Console.Write("Enter your name: ");
-        var userName = Console.ReadLine();
-        if (string.IsNullOrEmpty(userName)) userName = "Anonymous";
+        // Console.Write("Enter your name: ");
+        // var userName = Console.ReadLine();
+        // if (string.IsNullOrEmpty(userName)) userName = "Anonymous";
+        string userName = messaging.UserName();
         
-        socketClient.CloseTerminal(userName);
+        socketClient.TerminalEventClosure(userName);
         
         // await JoinedChat(userName);
         await socketClient.JoinChat(userName);
         
+        await messaging.ChatUpdate(userName, socketClient);
         // while (socket.Connected)
-        while (SocketClientManager.socketClient.Connected)
-        {
-            Console.Write("Enter your message or type (quit): ");
-            var messageInput = Console.ReadLine();
-            
-            if (string.IsNullOrEmpty(messageInput)) continue;
-            if (messageInput.ToLower() == "quit") break;
-
-            string timeOnly = DateTime.Now.ToString("HH:mm:ss");
-            Message message = new Message
-            {
-                User = userName, 
-                Text = messageInput,
-                Time = timeOnly
-            };
-
-            chatHistory.Add(message);
-
-            try
-            {
-                string chatMessage = $"\n[{message.Time}] {message.User}: {message.Text}";
-                // await SendMessage(chatMessage);
-                await socketClient.SendMessage(chatMessage);
-                // await socket.EmitAsync("message", message);
-                
-                Console.WriteLine("sent.");
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Failed to send message: {e.Message}");
-                throw;
-            }
-        }
+        // while (SocketClientManager.socketClient.Connected)
+        // {
+        //     Console.Write("Enter your message or type (quit): ");
+        //     var messageInput = Console.ReadLine();
+        //     
+        //     if (string.IsNullOrEmpty(messageInput)) continue;
+        //     if (messageInput.ToLower() == "quit") break;
+        //
+        //     string timeOnly = DateTime.Now.ToString("HH:mm:ss");
+        //     Messaging message = new Messaging
+        //     {
+        //         User = userName, 
+        //         Text = messageInput,
+        //         Time = timeOnly
+        //     };
+        //
+        //     // chatHistory.Add(message);
+        //
+        //     try
+        //     {
+        //         string chatMessage = $"\n[{message.Time}] {message.User}: {message.Text}";
+        //         // await SendMessage(chatMessage);
+        //         await socketClient.SendMessage(chatMessage);
+        //         // await socket.EmitAsync("message", message);
+        //         
+        //         Console.WriteLine("sent.");
+        //     }
+        //     catch (Exception e)
+        //     {
+        //         Console.WriteLine($"Failed to send message: {e.Message}");
+        //         throw;
+        //     }
+        // }
 
         await socketClient.ExitChat(userName);
         // await ExitChat(userName);

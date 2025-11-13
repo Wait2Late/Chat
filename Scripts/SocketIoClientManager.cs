@@ -75,7 +75,7 @@ public class SocketClientManager
         Console.WriteLine("Failed to establish connection.");
     }
 
-    public void CloseTerminal(string userName)
+    public void TerminalEventClosure(string userName)
     {
         Console.CancelKeyPress += async (sender, e) =>
         {
@@ -93,7 +93,7 @@ public class SocketClientManager
         {
             try
             {
-                var message = response.GetValue<Message>();
+                var message = response.GetValue<Messaging>();
                 
             }
             catch (Exception e)
@@ -120,6 +120,4 @@ public class SocketClientManager
         string exitMessage = $"{userName} has left the chat.";
         await socketClient.EmitAsync("message", exitMessage);
     }
-    
-    
 }
