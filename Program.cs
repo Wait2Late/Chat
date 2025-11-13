@@ -1,9 +1,10 @@
 ﻿using System.Net.Sockets;
 using System.Threading.Channels;
 
-namespace Chat;
-using SocketIOClient;
+using Chat.Scripts;
 using System.Text.Json;
+namespace Chat;
+// using SocketIOClient;
 
 // ws (websocket) is similar as http, without encryption
 // wss is similar as https, with TLS/SSL encryption activated
@@ -22,107 +23,118 @@ class Message
 
 class Program
 {
-    private static SocketIO socket;
+    // private static SocketIO socket;
     private static List<Message> chatHistory = new List<Message>();
-    private static bool isTyping = false;
-    private static CancellationTokenSource typingCancellation;
+    // private static bool isTyping = false;
+    // private static CancellationTokenSource typingCancellation;
+    const string URL = "wss://api.leetcode.se";
+    const string PATH = "/sys25d";
     
     static async Task Main(string[] args)
     {
-        // Console.CursorTop++;
-
-        socket = new SocketIO("wss://api.leetcode.se", new SocketIOOptions
-        {
-            Path = "/sys25d"
-        });
         
-        socket.OnConnected += (sender, e) =>
-        {
-            Console.WriteLine("Connected to the server.");
-        };
-
-        socket.OnDisconnected += (sender, e) =>
-        {
-            Console.WriteLine("Disconnected from the server.");
-        };
+        // socket = new SocketIO("wss://api.leetcode.se", new SocketIOOptions
+        // {
+        //     Path = "/sys25d"
+        // });
+        //
+        // socket.OnConnected += (sender, e) =>
+        // {
+        //     Console.WriteLine("Connected to the server.");
+        // };
+        //
+        // socket.OnDisconnected += (sender, e) =>
+        // {
+        //     Console.WriteLine("Disconnected from the server.");
+        // };
+        //
+        // socket.On("typing", response =>
+        // {
+        //     try
+        //     {
+        //         string userName = response.GetValue<Message>().User;
+        //         Console.WriteLine($"\n{userName} is typing...");
+        //         Console.Write("Enter your message or type (quit): ");
+        //     }
+        //     catch (Exception e)
+        //     {
+        //         Console.WriteLine(e);
+        //         throw;
+        //     }
+        // });
+        //
+        // // socket.On("stopTyping", response =>
+        // // {
+        // //     try
+        // //     {
+        // //         string userName = response.GetValue<string>();
+        // //         Console.WriteLine($"\n{userName} stopped typing.");
+        // //         Console.Write("Enter your message or type (quit): ");
+        // //     }
+        // //     catch (Exception e)
+        // //     {
+        // //         Console.WriteLine($"Error parsing stopTyping event: {e.Message}");
+        // //     }
+        // // });
+        //
+        // socket.On("message", response =>
+        // {
+        //     try
+        //     {
+        //         Message message = response.GetValue<Message>();
+        //         chatHistory.Add(message);
+        //         // Console.WriteLine($"\n[{message.Time}] {message.User}: {message.Text}");
+        //         // Console.Write("Enter your message or type (quit): ");
+        //     }
+        //     catch (Exception e)
+        //     {
+        //         Console.WriteLine($"Error parsing message: {e.Message}");
+        //         throw;
+        //     }
+        // });
+        //
+        // try
+        // {
+        //     await socket.ConnectAsync();
+        // }
+        // catch (Exception e)
+        // {
+        //     Console.WriteLine($"Connection failed: {e.Message}");
+        //     throw;
+        // }
+        //
+        // int attempts = 0;
+        // while (!socket.Connected && attempts++ < 50)
+        // {
+        //     await Task.Delay(200);
+        // }
+        //
+        // if (!socket.Connected)
+        // {
+        //     Console.WriteLine("Failed to establish connection.");
+        //     return;
+        // }
+        //
+     
+        SocketClientManager socketClient = new SocketClientManager();
         
-        socket.On("typing", response =>
-        {
-            try
-            {
-                string userName = response.GetValue<Message>().User;
-                Console.WriteLine($"\n{userName} is typing...");
-                Console.Write("Enter your message or type (quit): ");
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
-        });
-        
-        socket.On("stopTyping", response =>
-        {
-            try
-            {
-                string userName = response.GetValue<string>();
-                Console.WriteLine($"\n{userName} stopped typing.");
-                Console.Write("Enter your message or type (quit): ");
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Error parsing stopTyping event: {e.Message}");
-            }
-        });
-
-        socket.On("message", response =>
-        {
-            try
-            {
-                Message message = response.GetValue<Message>();
-                chatHistory.Add(message);
-                // Console.WriteLine($"\n[{message.Time}] {message.User}: {message.Text}");
-                // Console.Write("Enter your message or type (quit): ");
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Error parsing message: {e.Message}");
-                throw;
-            }
-        });
-
-        try
-        {
-            await socket.ConnectAsync();
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"Connection failed: {e.Message}");
-            throw;
-        }
-        
-        int attempts = 0;
-        while (!socket.Connected && attempts++ < 50)
-        {
-            await Task.Delay(200);
-        }
-
-        if (!socket.Connected)
-        {
-            Console.WriteLine("Failed to establish connection.");
-            return;
-        }
+        await socketClient.Initialize(URL, PATH);
         
         Console.Write("Enter your name: ");
         var userName = Console.ReadLine();
         if (string.IsNullOrEmpty(userName)) userName = "Anonymous";
-
-        await JoinedChat(userName);
         
-        while (socket.Connected)
+        socketClient.CloseTerminal(userName);
+        
+        // await JoinedChat(userName);
+        await socketClient.JoinChat(userName);
+        
+        // while (socket.Connected)
+        while (SocketClientManager.socketClient.Connected)
         {
             Console.Write("Enter your message or type (quit): ");
             var messageInput = Console.ReadLine();
+            
             if (string.IsNullOrEmpty(messageInput)) continue;
             if (messageInput.ToLower() == "quit") break;
 
@@ -135,13 +147,12 @@ class Program
             };
 
             chatHistory.Add(message);
-            
-            string chatMessage = $"\n[{message.Time}] {message.User}: {message.Text}";
 
-            
             try
             {
-                await SendMessage(chatMessage);
+                string chatMessage = $"\n[{message.Time}] {message.User}: {message.Text}";
+                // await SendMessage(chatMessage);
+                await socketClient.SendMessage(chatMessage);
                 // await socket.EmitAsync("message", message);
                 
                 Console.WriteLine("sent.");
@@ -153,25 +164,19 @@ class Program
             }
         }
 
-        await ExitChat(userName);
+        await socketClient.ExitChat(userName);
+        // await ExitChat(userName);
 
-        try
-        {
-            await socket.DisconnectAsync();
-        }
-        catch (Exception e)
-        {
-        }
-        
-        string fileName = $"chat_{DateTime.Now:yyyyMMdd_HHmmss}.json";
-        string jsonOutput = JsonSerializer.Serialize(chatHistory, new JsonSerializerOptions 
-        { 
-            WriteIndented = true 
-        });
-        
-        await File.WriteAllTextAsync(fileName, jsonOutput);
-        Console.WriteLine($"\nChat history saved to {fileName}");
-        Console.WriteLine($"Current directory: {Directory.GetCurrentDirectory()}");
+        //// Save chat history to a JSON file
+        // string fileName = $"chat_{DateTime.Now:yyyyMMdd_HHmmss}.json";
+        // string jsonOutput = JsonSerializer.Serialize(chatHistory, new JsonSerializerOptions 
+        // { 
+        //     WriteIndented = true 
+        // });
+        //
+        // await File.WriteAllTextAsync(fileName, jsonOutput);
+        // Console.WriteLine($"\nChat history saved to {fileName}");
+        // Console.WriteLine($"Current directory: {Directory.GetCurrentDirectory()}");
 
         // _client = new SocketIO("wss://api.leetcode.se", new SocketIOOptions
         // {
@@ -281,28 +286,29 @@ class Program
         // await _client.DisconnectAsync();
     }
 
-    private static async Task SendMessage(string message)
-    {
-        // if (socket == null || !socket.Connected) return;
-
-        // Message messageObj = new Message()
-        // {
-        //     Text = message,
-        //     User = "Shakil"
-        // };
-        
-        await socket.EmitAsync("message", message);
-    }
-
-    private static async Task JoinedChat(string userName)
-    {
-        string joinMessage = $"{userName} has joined the chat.";
-        await socket.EmitAsync("message", joinMessage);
-    }
-    
-    private static async Task ExitChat(string userName)
-    {
-        string exitMessage = $"{userName} has left the chat.";
-        await socket.EmitAsync("message", exitMessage);
-    }
+    // private static async Task SendMessage(string message)
+    // {
+    //     // if (socket == null || !socket.Connected) return;
+    //
+    //     // Message messageObj = new Message()
+    //     // {
+    //     //     Text = message,
+    //     //     User = "Shakil"
+    //     // };
+    //     
+    //     await socket.EmitAsync("message", message);
+    // }
+    //
+    // private static async Task JoinedChat(string userName)
+    // {
+    //     string joinMessage = $"{userName} has joined the chat.";
+    //     await socket.EmitAsync("message", joinMessage);
+    // }
+    //
+    // private static async Task ExitChat(string userName)
+    // {
+    //     string exitMessage = $"{userName} has left the chat.";
+    //     await socket.EmitAsync("message", exitMessage);
+    //     await socket.DisconnectAsync();
+    // }
 }
