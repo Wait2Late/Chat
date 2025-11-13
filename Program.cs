@@ -24,13 +24,11 @@ class Program
 {
     private static SocketIO socket;
     private static List<Message> chatHistory = new List<Message>();
-    private static bool isTyping = false;
-    private static CancellationTokenSource typingCancellation;
+    // private static bool isTyping = false;
+    // private static CancellationTokenSource typingCancellation;
     
     static async Task Main(string[] args)
     {
-        // Console.CursorTop++;
-
         socket = new SocketIO("wss://api.leetcode.se", new SocketIOOptions
         {
             Path = "/sys25d"
@@ -61,19 +59,19 @@ class Program
             }
         });
         
-        socket.On("stopTyping", response =>
-        {
-            try
-            {
-                string userName = response.GetValue<string>();
-                Console.WriteLine($"\n{userName} stopped typing.");
-                Console.Write("Enter your message or type (quit): ");
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Error parsing stopTyping event: {e.Message}");
-            }
-        });
+        // socket.On("stopTyping", response =>
+        // {
+        //     try
+        //     {
+        //         string userName = response.GetValue<string>();
+        //         Console.WriteLine($"\n{userName} stopped typing.");
+        //         Console.Write("Enter your message or type (quit): ");
+        //     }
+        //     catch (Exception e)
+        //     {
+        //         Console.WriteLine($"Error parsing stopTyping event: {e.Message}");
+        //     }
+        // });
 
         socket.On("message", response =>
         {
