@@ -3,9 +3,9 @@ using SocketIOClient;
 
 public class SocketClientManager
 {
-    private SocketIO socketClient;
+    public static SocketIO socketClient { get; private set; }
     
-    public void Initialize(string serverUrl, string path)
+    public async Task Initialize(string serverUrl, string path)
     {
         socketClient = new SocketIO(serverUrl, new SocketIOOptions
         {
@@ -14,7 +14,7 @@ public class SocketClientManager
         
         OnConnection();
         
-        ConnectingAsync();
+        await ConnectingAsync();
     }
 
     private void OnConnection()
@@ -28,9 +28,29 @@ public class SocketClientManager
         {
             Console.WriteLine("Disconnected from the server.");
         };
+
+        // try
+        // {
+        //     await socketClient.ConnectAsync();
+        // }
+        // catch (Exception e)
+        // {
+        //     Console.WriteLine($"Connection failed: {e.Message}");
+        //     throw;
+        // }
+        //
+        // int attempts = 0;
+        // while (!socketClient.Connected && attempts++ < 50)
+        // {
+        //     await Task.Delay(200);
+        // }
+        //
+        // if (!socketClient.Connected) return;
+        //
+        // Console.WriteLine("Failed to establish connection.");
     }
     
-    private async void ConnectingAsync()
+    private async Task ConnectingAsync()
     {
         try
         {
@@ -51,6 +71,18 @@ public class SocketClientManager
         if (socketClient.Connected) return;
         
         Console.WriteLine("Failed to establish connection.");
+    }
+
+    public void CloseTerminal(string userName)
+    {
+        Console.CancelKeyPress += async (sender, e) =>
+        {
+            e.Cancel = true;
+            Console.WriteLine("\nShutting down...");
+            await ExitChat(userName);
+            
+            Environment.Exit(0);
+        };
     }
 
     public void OnEvent(string eventName)
@@ -86,4 +118,6 @@ public class SocketClientManager
         string exitMessage = $"{userName} has left the chat.";
         await socketClient.EmitAsync("message", exitMessage);
     }
+    
+    
 }
