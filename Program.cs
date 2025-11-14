@@ -118,13 +118,12 @@ class Program
         SocketClientManager socketClient = new SocketClientManager();
         Messaging messaging = new Messaging();
         
-        
         await socketClient.Initialize(URL, PATH);
         
         // Console.Write("Enter your name: ");
         // var userName = Console.ReadLine();
         // if (string.IsNullOrEmpty(userName)) userName = "Anonymous";
-        string userName = messaging.UserName();
+        string userName = messaging.SetUserName();
         
         socketClient.TerminalEventClosure(userName);
         

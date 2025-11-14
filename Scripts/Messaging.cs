@@ -6,7 +6,7 @@ public class Messaging
     public string User { get; set; }
     public string Text { get; set; }
 
-    public string UserName()
+    public string SetUserName()
     {
         Console.Write("Enter your name: ");
         var userName = Console.ReadLine();

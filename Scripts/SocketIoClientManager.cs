@@ -111,13 +111,15 @@ public class SocketClientManager
 
     public async Task JoinChat(string userName)
     {
-        string joinMessage = $"{userName} has joined the chat.";
+        var time = DateTime.Now.ToString("HH:mm:ss");
+        string joinMessage = $"[{time}] {userName} has joined the chat.";
         await socketClient.EmitAsync("message", joinMessage);
     }
     
     public async Task ExitChat(string userName)
     {
-        string exitMessage = $"{userName} has left the chat.";
+        var time = DateTime.Now.ToString("HH:mm:ss");
+        string exitMessage = $"[{time}] {userName} has left the chat.";
         await socketClient.EmitAsync("message", exitMessage);
     }
 }
