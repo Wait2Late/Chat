@@ -10,7 +10,7 @@ public class Messaging
     {
         Console.Write("Enter your name: ");
         var userName = Console.ReadLine();
-        if (string.IsNullOrEmpty(userName)) userName = "Anonymous";
+        if (string.IsNullOrEmpty(userName)) userName = "No Name";
 
         return User = userName;
     }
@@ -37,12 +37,13 @@ public class Messaging
 
             try
             {
-                string chatMessage = $"\n[{Time}] {User}: {Text}";
+                string chatMessage = $"[{Time}] {User}: {Text}";
                 // await SendMessage(chatMessage);
+                Console.WriteLine(chatMessage);
                 await socketClient.SendMessage(chatMessage);
                 // await socket.EmitAsync("message", message);
                 
-                Console.WriteLine("sent.");
+                // Console.WriteLine("sent.");
             }
             catch (Exception e)
             {

@@ -93,8 +93,8 @@ public class SocketClientManager
         {
             try
             {
-                var message = response.GetValue<Messaging>();
-                
+                var message = response.GetValue<string>();
+                Console.WriteLine(message);
             }
             catch (Exception e)
             {
@@ -113,6 +113,7 @@ public class SocketClientManager
     {
         var time = DateTime.Now.ToString("HH:mm:ss");
         string joinMessage = $"[{time}] {userName} has joined the chat.";
+        Console.WriteLine(joinMessage);
         await socketClient.EmitAsync("message", joinMessage);
     }
     
@@ -120,6 +121,7 @@ public class SocketClientManager
     {
         var time = DateTime.Now.ToString("HH:mm:ss");
         string exitMessage = $"[{time}] {userName} has left the chat.";
+        Console.WriteLine(exitMessage);
         await socketClient.EmitAsync("message", exitMessage);
     }
 }
