@@ -38,12 +38,8 @@ public class Messaging
             try
             {
                 string chatMessage = $"[{Time}] {User}: {Text}";
-                // await SendMessage(chatMessage);
                 Console.WriteLine(chatMessage);
                 await socketClient.SendMessage(chatMessage);
-                // await socket.EmitAsync("message", message);
-                
-                // Console.WriteLine("sent.");
             }
             catch (Exception e)
             {
