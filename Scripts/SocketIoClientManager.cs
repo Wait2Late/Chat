@@ -22,32 +22,32 @@ public class SocketClientManager
         socketClient.OnConnected += (sender, e) =>
         {
             Console.WriteLine("Connected to the server.");
+            Console.WriteLine($"Socket ID: {socketClient.Id}");
         };
         
         socketClient.OnDisconnected += (sender, e) =>
         {
             Console.WriteLine("Disconnected from the server.");
         };
-
-        // try
+        
+        // socketClient.OnAny((eventName, response) =>
         // {
-        //     await socketClient.ConnectAsync();
-        // }
-        // catch (Exception e)
-        // {
-        //     Console.WriteLine($"Connection failed: {e.Message}");
-        //     throw;
-        // }
-        //
-        // int attempts = 0;
-        // while (!socketClient.Connected && attempts++ < 50)
-        // {
-        //     await Task.Delay(200);
-        // }
-        //
-        // if (!socketClient.Connected) return;
-        //
-        // Console.WriteLine("Failed to establish connection.");
+        //     Console.WriteLine($"[Event Name]: {eventName}, Response Data: {response.GetValue<string>()}");;
+        // });
+        
+        socketClient.On("shakil", response =>
+        {
+            try
+            {
+                var message = response.GetValue<string>();
+                Console.WriteLine(message);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Error parsing message: {e.Message}");
+                throw;
+            }
+        });
     }
     
     private async Task ConnectingAsync()
@@ -67,8 +67,6 @@ public class SocketClientManager
         {
             await Task.Delay(200);
         }
-        
-        OnEvent("message");
 
         if (socketClient.Connected) return;
         
@@ -87,39 +85,24 @@ public class SocketClientManager
         };
     }
 
-    public void OnEvent(string eventName)
-    {
-        socketClient.On(eventName, response =>
-        {
-            try
-            {
-                var message = response.GetValue<Messaging>();
-                
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Error parsing message: {e.Message}");
-                throw;
-            }
-        });
-    }
-    
     public async Task SendMessage(string message)
     {
-        await socketClient.EmitAsync("message", message);
+        await socketClient.EmitAsync("shakil", message);
     }
 
     public async Task JoinChat(string userName)
     {
         var time = DateTime.Now.ToString("HH:mm:ss");
         string joinMessage = $"[{time}] {userName} has joined the chat.";
-        await socketClient.EmitAsync("message", joinMessage);
+        Console.WriteLine(joinMessage);
+        await socketClient.EmitAsync("shakil", joinMessage);
     }
     
     public async Task ExitChat(string userName)
     {
         var time = DateTime.Now.ToString("HH:mm:ss");
         string exitMessage = $"[{time}] {userName} has left the chat.";
-        await socketClient.EmitAsync("message", exitMessage);
+        Console.WriteLine(exitMessage);
+        await socketClient.EmitAsync("shakil", exitMessage);
     }
 }
