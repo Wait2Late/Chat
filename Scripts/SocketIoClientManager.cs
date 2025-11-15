@@ -4,13 +4,16 @@ using SocketIOClient;
 public class SocketClientManager
 {
     public static SocketIO socketClient { get; private set; }
-    
+    private const string EVENT_NAME = "shakil";
+
     public async Task Initialize(string serverUrl, string path)
     {
         socketClient = new SocketIO(serverUrl, new SocketIOOptions
         {
             Path = path
         });
+        
+        socketClient.Options.AutoUpgrade = false;
         
         OnConnection();
         
@@ -22,7 +25,6 @@ public class SocketClientManager
         socketClient.OnConnected += (sender, e) =>
         {
             Console.WriteLine("Connected to the server.");
-            Console.WriteLine($"Socket ID: {socketClient.Id}");
         };
         
         socketClient.OnDisconnected += (sender, e) =>
@@ -30,17 +32,12 @@ public class SocketClientManager
             Console.WriteLine("Disconnected from the server.");
         };
         
-        // socketClient.OnAny((eventName, response) =>
-        // {
-        //     Console.WriteLine($"[Event Name]: {eventName}, Response Data: {response.GetValue<string>()}");;
-        // });
-        
-        socketClient.On("shakil", response =>
+        socketClient.On(EVENT_NAME, response =>
         {
             try
-            {
+            {        
                 var message = response.GetValue<string>();
-                Console.WriteLine(message);
+                Console.WriteLine($"\n{message}");
             }
             catch (Exception e)
             {
@@ -73,13 +70,13 @@ public class SocketClientManager
         Console.WriteLine("Failed to establish connection.");
     }
 
-    public void TerminalEventClosure(string userName)
+    private void TerminalEventClosure(string userName, SystemMessaging sysMessage)
     {
         Console.CancelKeyPress += async (sender, e) =>
         {
             e.Cancel = true;
             Console.WriteLine("\nShutting down...");
-            await ExitChat(userName);
+            await ExitChat(userName, sysMessage);
             
             Environment.Exit(0);
         };
@@ -87,22 +84,24 @@ public class SocketClientManager
 
     public async Task SendMessage(string message)
     {
-        await socketClient.EmitAsync("shakil", message);
-    }
-
-    public async Task JoinChat(string userName)
-    {
-        var time = DateTime.Now.ToString("HH:mm:ss");
-        string joinMessage = $"[{time}] {userName} has joined the chat.";
-        Console.WriteLine(joinMessage);
-        await socketClient.EmitAsync("shakil", joinMessage);
+        await socketClient.EmitAsync(EVENT_NAME, message);
     }
     
-    public async Task ExitChat(string userName)
+    public async Task JoinChat(string userName, SystemMessaging sysMessage)
     {
-        var time = DateTime.Now.ToString("HH:mm:ss");
-        string exitMessage = $"[{time}] {userName} has left the chat.";
-        Console.WriteLine(exitMessage);
-        await socketClient.EmitAsync("shakil", exitMessage);
+        TerminalEventClosure(userName, sysMessage);
+        
+        string joinedText = sysMessage.FormattedMessage("has joined the chat");
+        Console.WriteLine(joinedText);
+        
+        await socketClient.EmitAsync(EVENT_NAME, joinedText);
+    }
+    
+    public async Task ExitChat(string userName, SystemMessaging sysMessage)
+    {
+        string exitText = sysMessage.FormattedMessage("has exit the chat");
+        Console.WriteLine(exitText);
+        
+        await socketClient.EmitAsync(EVENT_NAME, exitText);
     }
 }
