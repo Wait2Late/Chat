@@ -33,12 +33,8 @@ public class Messaging
             if (string.IsNullOrEmpty(messageInput)) continue;
             if (messageInput.ToLower() == "quit") break;
 
-            // Text = messageInput;
-            // Time = DateTime.Now.ToString("HH:mm:ss");
-
             try
             {
-                // string chatMessage = $"[{Time}] {User}: {Text}";
                 string chatMessage = textMessaging.FormattedMessage(messageInput);
                 Console.WriteLine(chatMessage);
                 
@@ -82,7 +78,6 @@ public class SystemMessaging : Messaging
 
     public override string FormattedMessage(string text)
     {
-        // [time] System: User has left the chat
         return $"[{Time}] System: {User} {text}";
     }
 

@@ -91,23 +91,17 @@ public class SocketClientManager
     {
         TerminalEventClosure(userName, sysMessage);
         
-        // var time = DateTime.Now.ToString("HH:mm:ss");
-        // string joinMessage = $"\n[{time}] {userName} has joined the chat.";
-        //
-        // await socketClient.EmitAsync(EVENT_NAME, joinMessage);
-
         string joinedText = sysMessage.FormattedMessage("has joined the chat");
         Console.WriteLine(joinedText);
+        
         await socketClient.EmitAsync(EVENT_NAME, joinedText);
     }
     
     public async Task ExitChat(string userName, SystemMessaging sysMessage)
     {
-        // var time = DateTime.Now.ToString("HH:mm:ss");
-        // string exitMessage = $"\n[{time}] {userName} has left the chat.";
-
-        string exitText = sysMessage.FormattedMessage("has joined the chat");
+        string exitText = sysMessage.FormattedMessage("has exit the chat");
         Console.WriteLine(exitText);
+        
         await socketClient.EmitAsync(EVENT_NAME, exitText);
     }
 }
