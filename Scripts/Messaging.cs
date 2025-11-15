@@ -6,12 +6,6 @@ public class Messaging
     public string User { get; set; }
     public string Text { get; set; }
 
-    // public Messaging(string user)
-    // {
-    //     User = user;
-    //     Time = DateTime.Now.ToString("HH:mm:ss");
-    // }
-
     public string SetUserName()
     {
         Console.Write("Enter your name: ");
@@ -80,5 +74,4 @@ public class SystemMessaging : Messaging
     {
         return $"[{Time}] System: {User} {text}";
     }
-
 }
