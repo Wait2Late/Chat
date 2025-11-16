@@ -16,6 +16,7 @@ namespace Chat;
 
 class Program
 {
+    //TODO if I had more time, I would implement more features for VG.
     // private static SocketIO socket;
     // private static List<Messaging> chatHistory = new List<Messaging>();
     // private static bool isTyping = false;
