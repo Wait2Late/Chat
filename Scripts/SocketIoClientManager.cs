@@ -4,14 +4,16 @@ using SocketIOClient;
 public class SocketClientManager
 {
     public static SocketIO socketClient { get; private set; }
-    private const string EVENT_NAME = "shakil";
+    private string EventName { get; set; }
 
-    public async Task Initialize(string serverUrl, string path)
+    public async Task Initialize(string serverUrl, string path, string eventName)
     {
         socketClient = new SocketIO(serverUrl, new SocketIOOptions
         {
             Path = path
         });
+
+        EventName = eventName;
         
         socketClient.Options.AutoUpgrade = false;
         
@@ -32,7 +34,7 @@ public class SocketClientManager
             Console.WriteLine("Disconnected from the server.");
         };
         
-        socketClient.On(EVENT_NAME, response =>
+        socketClient.On(EventName, response =>
         {
             try
             {        
@@ -84,7 +86,7 @@ public class SocketClientManager
 
     public async Task SendMessage(string message)
     {
-        await socketClient.EmitAsync(EVENT_NAME, message);
+        await socketClient.EmitAsync(EventName, message);
     }
     
     public async Task JoinChat(string userName, SystemMessaging sysMessage)
@@ -94,7 +96,7 @@ public class SocketClientManager
         string joinedText = sysMessage.FormattedMessage("has joined the chat");
         Console.WriteLine(joinedText);
         
-        await socketClient.EmitAsync(EVENT_NAME, joinedText);
+        await socketClient.EmitAsync(EventName, joinedText);
     }
     
     public async Task ExitChat(string userName, SystemMessaging sysMessage)
@@ -102,6 +104,6 @@ public class SocketClientManager
         string exitText = sysMessage.FormattedMessage("has exit the chat");
         Console.WriteLine(exitText);
         
-        await socketClient.EmitAsync(EVENT_NAME, exitText);
+        await socketClient.EmitAsync(EventName, exitText);
     }
 }

@@ -1,18 +1,5 @@
-﻿using System.Net.Sockets;
-using System.Threading.Channels;
-
-using Chat.Scripts;
-using System.Text.Json;
+﻿using Chat.Scripts;
 namespace Chat;
-// using SocketIOClient;
-
-// ws (websocket) is similar as http, without encryption
-// wss is similar as https, with TLS/SSL encryption activated
-
-/*
- * Events are fired when the server sends data to the client
- * Each event has an eventName and data content
- */
 
 class Program
 {
@@ -23,13 +10,14 @@ class Program
     // private static CancellationTokenSource typingCancellation;
     const string URL = "wss://api.leetcode.se";
     const string PATH = "/sys25d";
+    const string EVENT_NAME = "message";
     
     static async Task Main(string[] args)
     {
         SocketClientManager socketClient = new SocketClientManager();
         Messaging messaging = new Messaging();
         
-        await socketClient.Initialize(URL, PATH);
+        await socketClient.Initialize(URL, PATH, EVENT_NAME);
         
         string userName = messaging.SetUserName();
         
