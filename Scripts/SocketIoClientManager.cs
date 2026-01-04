@@ -34,18 +34,19 @@ public class SocketClientManager
             Console.WriteLine("Disconnected from the server.");
         };
         
-        socketClient.On(EventName, response =>
+        socketClient.On(EventName, response => 
         {
             try
-            {        
-                var message = response.GetValue<string>();
-                Console.WriteLine($"\n{message}");
+            {
+                var message = response.GetValue<Messaging>();
+                Console.WriteLine($"\n{message.Text}");
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Error parsing message: {e.Message}");
+                Console.WriteLine(e);
                 throw;
             }
+            
         });
     }
     
@@ -84,7 +85,11 @@ public class SocketClientManager
         };
     }
 
-    public async Task SendMessage(string message)
+    // public async Task SendMessage(string message)
+    // {
+    //     await socketClient.EmitAsync(EventName, message);
+    // }
+    public async Task SendMessage(Messaging message)
     {
         await socketClient.EmitAsync(EventName, message);
     }
@@ -95,8 +100,9 @@ public class SocketClientManager
         
         string joinedText = sysMessage.FormattedMessage("has joined the chat");
         Console.WriteLine(joinedText);
-        
-        await socketClient.EmitAsync(EventName, joinedText);
+
+        var messageObj = new Messaging(userName, joinedText); 
+        await socketClient.EmitAsync(EventName, messageObj);
     }
     
     public async Task ExitChat(string userName, SystemMessaging sysMessage)
@@ -104,6 +110,7 @@ public class SocketClientManager
         string exitText = sysMessage.FormattedMessage("has exit the chat");
         Console.WriteLine(exitText);
         
-        await socketClient.EmitAsync(EventName, exitText);
+        var messageObj = new Messaging(userName, exitText);
+        await socketClient.EmitAsync(EventName, messageObj);
     }
 }

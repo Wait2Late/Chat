@@ -6,13 +6,31 @@ public class Messaging
     public string User { get; set; }
     public string Text { get; set; }
 
+    public Messaging() { }
+    
+    public Messaging(string user, string text)
+    {
+        User = user;
+        Text = text;
+    }
+    public override string ToString() => $"{User}: {Text}";
     public string SetUserName()
     {
-        Console.Write("Enter your name: ");
-        var userName = Console.ReadLine();
-        if (string.IsNullOrEmpty(userName)) userName = "No Name";
+        while (true)
+        {
+            Console.Write("Enter your name (no spaces): ");
+            var userName = Console.ReadLine()?.Trim();
 
-        return User = userName;
+            if (string.IsNullOrEmpty(userName))
+            {
+                Console.WriteLine("Need to be a name. Please enter again");
+                continue;
+            }
+
+            if (!userName.Contains(' ')) return User = userName;
+
+            Console.WriteLine("Names cannot contain spaces. Please try again.");
+        }
     }
     
     public async Task ChatUpdateLoop(
@@ -24,15 +42,16 @@ public class Messaging
             Console.Write("Enter your message or type (quit): ");
             var messageInput = Console.ReadLine();
             
-            if (string.IsNullOrEmpty(messageInput)) continue;
-            if (messageInput.ToLower() == "quit") break;
+            if (string.IsNullOrEmpty(messageInput) || messageInput.Contains(' ')) continue;
+            if (messageInput.ToLower() == "quit" || messageInput.ToLower() == "q") break;
 
             try
             {
                 string chatMessage = textMessaging.FormattedMessage(messageInput);
                 Console.WriteLine(chatMessage);
-                
-                await socketClient.SendMessage(chatMessage);
+             
+                var messageObj = new Messaging(User, chatMessage);
+                await socketClient.SendMessage(messageObj);
             }
             catch (Exception e)
             {
